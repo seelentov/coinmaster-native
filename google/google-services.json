@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "496388037145",
+    "project_id": "cardscore-a09b5",
+    "storage_bucket": "cardscore-a09b5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:496388037145:android:7ac48862a3c74fbb472888",
+        "android_client_info": {
+          "package_name": "com.seelentov.cardscorenative"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSosGA1BYsN2vemt4tY6RMAgB46utawAY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,2 @@
+interface IPositionFilter extends IPositionRelations {
+}
