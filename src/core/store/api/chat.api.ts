@@ -1,29 +1,34 @@
+import { objectToQueryString } from '../../utils/api/objectToQueryString';
 import { api } from './api'
 
 const BASE_URL = "/chat";
 
 export const chatApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getChat: builder.query<IPaginationResponse<ICommentBase[]>, { id: number, filter: IChatFilter }>({
-            query: ({ id, filter }) => BASE_URL + "/" + id + "?" + objectToQueryString(filter as any),
+        getChat: builder.query<IResponse<IChat>, { identificator: string, body: IChatShowRequest }>({
+            query: ({ identificator, body }) => BASE_URL + '/' + identificator + '/?' + objectToQueryString(body),
             providesTags: ['chat']
         }),
-        postMessage: builder.mutation<IResponse<void>, IStoreChatRequest>({
-            query: (body) => ({
-                url: BASE_URL,
+        throwMessage: builder.mutation<IMessageResponse, { id: number, body: IChatStoreRequest }>({
+            query: ({ id, body }) => ({
+                url: BASE_URL + `/` + id,
                 method: "POST",
                 body
             }),
             invalidatesTags: ['chat'],
         }),
-        deleteMessage: builder.mutation<IResponse<void>, number>({
+        removeMessage: builder.mutation<IMessageResponse, number>({
             query: (id) => ({
-                url: BASE_URL + "/" + id,
+                url: BASE_URL + `/` + id,
                 method: "DELETE",
             }),
             invalidatesTags: ['chat'],
         }),
-    })
+    }),
 })
 
-export const { useGetChatQuery, usePostMessageMutation, useDeleteMessageMutation } = chatApi
+export const {
+    useGetChatQuery,
+    useThrowMessageMutation,
+    useRemoveMessageMutation
+} = chatApi

@@ -1,45 +1,42 @@
-import { View, Image } from "react-native";
-import { styles } from "./Header.stylesheet";
-import { ReactNode } from "react";
-import { SvgUri } from 'react-native-svg'
-import { useGetNotificationsQuery } from "../../../core/store/api/notification.api";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { Dispatch, PropsWithChildren, ReactNode, SetStateAction, useState } from "react"
+import { View } from "react-native";
+import { Appbar } from "react-native-paper";
 import { baseStyles } from "../../../styles/base.styles";
-type IHeaderProps = {
-    navigation: any,
-    children: ReactNode
+
+interface IHeaderProps {
+    title?: string
+    showBack?: boolean
+    search?: {
+        node: ReactNode,
+        searchIsOpen: boolean,
+        setSearchIsOpen: Dispatch<SetStateAction<boolean>>
+    }
+    desc?: ReactNode
 }
 
 
-export default function Header({ navigation, children }: IHeaderProps) {
+export default function Header({ search, desc = "", title = "", showBack = true }: IHeaderProps) {
 
-    const { data: notificationsData } = useGetNotificationsQuery();
+    const navigation = useNavigation()
 
-    const isNew = notificationsData?.data && notificationsData.data.some(n => n.is_new)
+    const goBack = () => navigation.goBack();
 
     return (
-        <View style={styles.main}>
-            <View style={styles.left}>
-                <Image
-                    style={styles.profilePic}
-                    source={{
-                        uri: 'https://reactnative.dev/img/tiny_logo.png',
-                    }}
-                />
-            </View>
-            <View style={styles.children}>
-                {children}
-            </View>
-            <View style={styles.right}>
-                <SvgUri
-                    width="100%"
-                    height="100%"
-                    uri="https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/debian.svg"
-                    style={styles.rightIcon}
-                />
-                {isNew &&
-                    <View style={{ ...styles.point, ...baseStyles.point }}></View>
-                }
-            </View>
-        </View >
-    );
+        <Appbar.Header style={baseStyles.header}>
+            {((search && !search.searchIsOpen) || (!search)) &&
+                <>
+                    {showBack ?
+                        <Appbar.BackAction onPress={goBack} /> :
+                        <View style={{ marginRight: 30 }}></View>}
+                    <Appbar.Content title={title} />
+                    {search && <Appbar.Action icon="magnify" onPress={() => search.setSearchIsOpen(true)} />}
+                </>}
+            {(search && search.searchIsOpen) &&
+                <View>
+                    {search.node}
+                </View>}
+            {desc}
+        </Appbar.Header>
+    )
 }

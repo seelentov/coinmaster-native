@@ -1,1 +1,0 @@
-type IQueryHelperResponse = string[]

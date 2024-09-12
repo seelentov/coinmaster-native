@@ -1,6 +1,6 @@
-interface INotification {
-    route_data: string,
+interface INotification extends IBaseModel {
+    header: string,
     text: string,
-    title: string,
-    is_new: boolean,
+    is_checked: boolean,
+    route_path: IRouteData,
 }

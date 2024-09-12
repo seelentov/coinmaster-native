@@ -1,28 +1,38 @@
-import { Pressable, View, Text } from "react-native";
-import { styles } from "./Footer.stylesheet";
-import { SvgXml } from "react-native-svg";
-import { useRoute } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../../Router";
+import { Pressable, StyleSheet, View } from "react-native";
+import { baseStyles } from "../../../styles/base.styles";
+import { IconButton, MD3Colors } from "react-native-paper";
 import routing from "../../../core/config/routing";
-type IHeaderProps = {
-    navigation: any
+import { useRoute } from "@react-navigation/native";
+
+interface IFooterProps {
+    navigation: NativeStackNavigationProp<RootStackParamList, any, undefined>
 }
 
+export default function Footer({ navigation }: IFooterProps) {
 
-export default function Footer({ navigation }: IHeaderProps) {
-
-    const actualRoute = useRoute();
+    const actialRoute = useRoute();
 
     return (
-        <View style={styles.main}>
-            <View style={styles.list}>
-                {routing.map((route, key) => {
-                    const opacity = route.name === actualRoute.name ? 1 : 0.5
-                    return (<Pressable key={key} style={{ ...styles.item, opacity }} onPress={() => navigation.navigate(route.name)}>
-                        <SvgXml xml={route.icon} width="30" height="30" />
-                    </Pressable>)
-                })}
+        <View style={baseStyles.footer}>
+            {routing.map(route => {
+                const active = route.name === actialRoute.name
+                return <IconButton
+                    icon={route.icon}
+                    iconColor={"black"}
+                    size={30}
+                    disabled={active}
+                    onPress={() => navigation.navigate(route.name as any)}
+                />
+            })}
 
-            </View>
+
         </View>
-    );
+    )
 }
+
+
+const styles = StyleSheet.create({
+
+})

@@ -1,4 +1,4 @@
-function objectToQueryString(obj: IQueryStringObject): string {
+export function objectToQueryString(obj: any): string {
     const params: string[] = [];
 
     for (const key in obj) {

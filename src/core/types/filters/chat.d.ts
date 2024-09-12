@@ -1,2 +1,0 @@
-interface IChatFilter extends IBaseFilter {
-}

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Cardscore",
-    "slug": "cardscore-native",
+    "name": "Coinmaster",
+    "slug": "coinmaster-native",
     "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,7 +21,7 @@
       },
       "package": "com.seelentov.native",
       "googleServicesFile": "./google/google-services.json",
-      "versionCode": 2
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"

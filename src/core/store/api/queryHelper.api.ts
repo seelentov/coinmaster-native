@@ -2,12 +2,14 @@ import { api } from './api'
 
 const BASE_URL = "/queryHelper";
 
-export const queryHelperApi = api.injectEndpoints({
+export const queryHelper = api.injectEndpoints({
     endpoints: (builder) => ({
-        getQueryHelper: builder.query<IQueryHelperResponse, IQueryHelperRequest>({
-            query: ({ filter, type }) => "/" + type + BASE_URL + objectToQueryString(filter as any),
+        queryHelp: builder.query<string[], string>({
+            query: (search) => BASE_URL + "?search=" + search,
         }),
     }),
 })
 
-export const { useGetQueryHelperQuery } = queryHelperApi
+export const {
+    useQueryHelpQuery
+} = queryHelper

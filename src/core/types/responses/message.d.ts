@@ -1,0 +1,4 @@
+
+interface IMessageResponse {
+    message: string
+}

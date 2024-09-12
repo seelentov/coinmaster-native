@@ -1,14 +1,17 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-export const BASE_URL = 'https://cardscore.ru'
+export const BASE_URL = process.env.EXPO_PUBLIC_API_URL
+
+export const STORAGE_URL = '/uploaded'
+
 export const API_URL = BASE_URL + '/api'
 
 const tagTypes = [
   "auth",
   "settings",
-  "favorites",
   "chat",
+  "favorite",
   "notifications"
 ]
 

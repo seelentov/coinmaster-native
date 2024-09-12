@@ -4,11 +4,11 @@ const BASE_URL = "/auth";
 
 export const authApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getMe: builder.query<void, IUser>({
+        getMe: builder.query<IUser, void>({
             query: () => BASE_URL + '/me',
             providesTags: ['auth'],
         }),
-        login: builder.mutation<ILoginResponse, ILoginRequest>({
+        login: builder.mutation<IWithTokenResponse, IAuthLoginRequest>({
             query: (body) => ({
                 url: BASE_URL + `/login/`,
                 method: "POST",
@@ -16,23 +16,23 @@ export const authApi = api.injectEndpoints({
             }),
             invalidatesTags: ['auth'],
         }),
-        updateAvatar: builder.mutation<IResponse<void>, IUpdateAvatarRequest>({
-            query: (body) => ({
+        updateAvatar: builder.mutation<IMessageResponse, File>({
+            query: (file) => ({
                 url: BASE_URL + `/updateAvatar`,
-                method: "POST",
-                body
+                method: "PATCH",
+                body: { avatar: file }
             }),
             invalidatesTags: ['auth'],
         }),
-        verify: builder.mutation<ILoginResponse, IVerifyRequest>({
+        verify: builder.mutation<IWithTokenResponse, IAuthVerifyRequest>({
             query: (body) => ({
                 url: BASE_URL + `/verify`,
-                method: "POST",
+                method: "PATCH",
                 body
             }),
             invalidatesTags: ['auth'],
         }),
-        register: builder.mutation<IResponse<void>, IRegisterRequest>({
+        register: builder.mutation<IMessageResponse, IAuthStoreRequest>({
             query: (body) => ({
                 url: BASE_URL + `/register`,
                 method: "POST",
@@ -40,15 +40,15 @@ export const authApi = api.injectEndpoints({
             }),
             invalidatesTags: ['auth'],
         }),
-        updateExpo: builder.mutation<IResponse<void>, string>({
+        updateExpo: builder.mutation<IMessageResponse, string>({
             query: (expo_token) => ({
                 url: BASE_URL + `/updateExpo`,
-                method: "POST",
+                method: "PATCH",
                 body: { expo_token }
             }),
             invalidatesTags: ['auth'],
         }),
-        logout: builder.mutation<IResponse<void>, void>({
+        logout: builder.mutation<IMessageResponse, void>({
             query: (body) => ({
                 url: BASE_URL + `/logout`,
                 method: "POST",
@@ -56,13 +56,12 @@ export const authApi = api.injectEndpoints({
             }),
             invalidatesTags: ['auth'],
         }),
-        refresh: builder.mutation<ILoginResponse, void>({
+        refresh: builder.mutation<IWithTokenResponse, void>({
             query: (body) => ({
-                url: BASE_URL + `/logout`,
+                url: BASE_URL + `/refresh`,
                 method: "POST",
                 body
             }),
-            invalidatesTags: ['auth'],
         }),
     }),
 })

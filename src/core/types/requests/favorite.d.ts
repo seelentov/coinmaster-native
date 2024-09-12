@@ -1,2 +1,0 @@
-interface IStoreFavoriteRequest extends IFavoriteBase {
-}

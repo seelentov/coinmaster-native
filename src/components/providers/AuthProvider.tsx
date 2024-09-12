@@ -2,6 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 import { NavigationProp, ParamListBase, useNavigation, CommonActions } from '@react-navigation/native';
 import { useActions } from '../../core/hooks/useActions';
+import { useStoreBy } from '../../core/hooks/useStoreBy';
+import { AuthStore } from '../../core/store/auth/auth.store';
+import { useGetMeQuery, useLoginMutation, useLogoutMutation, useRefreshMutation } from '../../core/store/api/auth.api';
 
 export const AuthContext = createContext<AuthContextProps>({
   isAuthenticated: false,
@@ -20,6 +23,10 @@ interface AuthContextProps {
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const { setToken } = useActions()
+  const { token } = useStoreBy<AuthStore>("auth")
+  const [refresh] = useRefreshMutation()
+  const [logoutMutation] = useLogoutMutation()
+  const { data: meData } = useGetMeQuery()
 
   const navigation: NavigationProp<ParamListBase> = useNavigation()
 
@@ -32,6 +39,20 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     );
   }
 
+  useEffect(() => {
+    const timeoutId = setInterval(() => {
+      refresh().then((res) => {
+        if (res?.data?.access_token) {
+          authorization(res?.data?.access_token)
+          console.log(res?.data?.access_token)
+        }
+      })
+
+    }, 1 * 60 * 1000);
+
+    return () => clearInterval(timeoutId);
+  }, []);
+
   const setAuthState = (token: string | false) => {
     if (!token) {
       setToken("")
@@ -43,61 +64,29 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     }
   }
 
-
   useEffect(() => {
     const checkAuth = async () => {
       const token = await AsyncStorage.getItem('token') || "";
-      if (token) {
+      if (meData && token) {
         setAuthState(token)
-        navigateTo("Home")
       }
       else {
-        navigateTo("Login")
+        navigateTo("Auth")
       }
     };
 
     checkAuth();
-  }, []);
-
-
-  // useEffect(() => {
-  //   const intervalId = setInterval(() => {
-  //     if (meData) {
-  //       const subscriptionDate = new Date(meData.subData);
-  //       const currentDate = new Date();
-
-  //       if (subscriptionDate < currentDate) {
-  //         setIsSubExist(false);
-
-  //         if (checkSubInterval === 5000) {
-  //           setCheckSubInterval(60000)
-  //           navigateTo("OnlyInfos");
-  //         }
-  //         Alert.alert("Подписка истекла!", "Обратитесь по контактным данным для продления подписки")
-  //         console.log("Sub: ERR!")
-  //       } else {
-  //         if (checkSubInterval === 60000) {
-  //           setCheckSubInterval(5000)
-  //           navigateTo("Home");
-  //         }
-
-  //         setIsSubExist(true);
-  //         console.log("Sub: OK!")
-  //       }
-  //     }
-  //   }, checkSubInterval);
-
-  //   return () => clearInterval(intervalId);
-  // }, [meData, checkSubInterval]);
-
+  }, [token, meData]);
 
   const authorization = async (token: string) => {
     await AsyncStorage.setItem('token', token);
     setAuthState(token)
+
   };
 
   const logout = async () => {
     await AsyncStorage.setItem('token', "");
+    await logoutMutation()
     setAuthState(false)
   };
 

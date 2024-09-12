@@ -1,42 +1,36 @@
-import home from '../../components/ui/Icons/home'
-import profile from '../../components/ui/Icons/profile'
-import settings from '../../components/ui/Icons/settings'
-import favorites from '../../components/ui/Icons/favorites'
-import info from '../../components/ui/Icons/info'
 import { RootStackParamList } from '../../Router'
 
 type RouterPage = {
     name: keyof RootStackParamList
     icon: string
-    title: string
 }
 
-const routing: RouterPage[] =  [
+const routing: RouterPage[] = [
     {
-        'name': "Home",
-        'title': "Все игры",
-        'icon': home
+        'name': "Main",
+        'icon': "home"
+    },
+
+    {
+        'name': "CurrencyList",
+        'icon': "currency-rub"
     },
     {
-        'name': "Favorites",
-        'title': "Избранное",
-        'icon': favorites
+        'name': "NewsList",
+        'icon': "newspaper"
     },
     {
         'name': "Profile",
-        'title': "Профиль",
-        'icon': profile
+        'icon': "account"
+    },
+    {
+        'name': "Favorites",
+        'icon': "playlist-star"
     },
     {
         'name': "Settings",
-        'title': "Настройки",
-        'icon': settings
+        'icon': "application-braces"
     },
-    {
-        'name': "Infos",
-        'title': "Инфо",
-        'icon': info
-    }
 ]
 
 export default routing;

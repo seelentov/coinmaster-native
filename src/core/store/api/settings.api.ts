@@ -4,20 +4,22 @@ const BASE_URL = "/settings";
 
 export const settingsApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getSettings: builder.query<IResponse<ISettings>, void>({
-            query: () => BASE_URL,
+        getSettings: builder.query<ISettings, void>({
+            query: () => BASE_URL + '/',
             providesTags: ['settings'],
         }),
-        updateSettings: builder.mutation<IResponse<void>, IUpdateSettingsRequest>({
+        setSettings: builder.mutation<IMessageResponse, ISettingsStoreRequest>({
             query: (body) => ({
-                url: BASE_URL,
+                url: BASE_URL + `/`,
                 method: "POST",
                 body
             }),
             invalidatesTags: ['settings'],
         }),
-
     }),
 })
 
-export const { useGetSettingsQuery, useUpdateSettingsMutation } = settingsApi
+export const {
+    useGetSettingsQuery,
+    useSetSettingsMutation
+} = settingsApi

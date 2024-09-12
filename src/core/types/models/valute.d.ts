@@ -1,30 +1,19 @@
-interface IValueBase {
-    name: string
-}
-
-interface IValuteNumInfo {
-    last_position: IPositionBase
-    rise: number,
-    risePercent: number
-}
-
-interface IValuteDescInfo {
-    id: number,
+interface IValute extends IBaseModel {
     name: string,
-    icon_url: string,
+    char_code: string,
+    code: string,
 }
 
-interface IValuteTypeInfo extends IValuteDescInfo, IValueBase {
-
+interface IValuteData {
+    value: number,
+    prev_value: number,
+    rise: number,
+    rise_percent: number
 }
 
-interface IValuteInfo extends IValuteDescInfo, IValuteNumInfo { }
-interface IValuteExchangeInfo extends IValuteInfo { }
-interface IValuteCurrencyInfo extends IValuteInfo {
-    sign: string
+interface IPosition extends IValuteData {
+    date: string
 }
 
-
-interface IWithPositions<T extends IValuteInfo> {
-    positions: T[]
-}
+type IValuteDetail = IValute & { positions: IPosition[] }
+type IValutePreview = IValute & IValuteData

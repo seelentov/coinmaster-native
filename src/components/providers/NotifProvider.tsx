@@ -5,8 +5,8 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { useStoreBy } from '../../core/hooks/useStoreBy';
 import { AuthStore } from '../../core/store/auth/auth.store';
-import { useGetNotificationsQuery } from '../../core/store/api/notification.api';
 import { useUpdateExpoMutation } from '../../core/store/api/auth.api';
+import { useGetNotificationsQuery } from '../../core/store/api/notifications.api';
 
 
 Notifications.setNotificationHandler({
@@ -78,11 +78,10 @@ interface NotifContextProps {
 
 export const NotifProvider = ({ children }: PropsWithChildren) => {
 
-  const { data: notificatorsData, isLoading: isLoadingNotif } = useGetNotificationsQuery(undefined, {
+  const { data: notifications, isLoading: isLoadingNotif } = useGetNotificationsQuery(undefined, {
     pollingInterval: 5000
   })
 
-  const notifications = notificatorsData && notificatorsData.data
 
   const [expoPushToken, setExpoPushToken] = useState('');
   const notificationListener = useRef<Notifications.Subscription>();
