@@ -2,6 +2,7 @@
 
 # dependencies
 node_modules/
+google/
 
 # Expo
 .expo/
@@ -34,3 +35,5 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 cardscore-a09b5-firebase-adminsdk-fefel-cb57dd4a54.json
+/google
+/google
