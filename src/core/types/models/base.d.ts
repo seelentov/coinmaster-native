@@ -1,3 +1,0 @@
-interface IBaseModel {
-    id: number,
-}

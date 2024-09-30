@@ -1,116 +1,106 @@
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../Router';
+import { NavigationScreenProps } from '../../Router';
 import { Alert, ScrollView, View } from 'react-native';
 import { baseStyles } from '../../styles/base.styles';
 import Header from '../../components/ui/Header/Header';
-import Footer from '../../components/ui/Footer/Footer';
-import { Button, Headline } from 'react-native-paper';
-import { useGetSettingsQuery, useSetSettingsMutation } from '../../core/store/api/settings.api';
-import Loading from '../../components/ui/Loading/Loading';
-import Error from '../../components/ui/Error/Error';
-import { useEffect, useState } from 'react';
-import { langOptions } from '../../core/consts/langOptions';
-import { Dropdown } from 'react-native-paper-dropdown';
-import SwitchWithLabel from '../../components/ui/SwitchWithLabel/SwitchWithLabel';
-import stringConvertUTCtoLocal from '../../core/utils/time/stringConvertUTCtoLocal';
-import stringConvertLocaltoUTC from '../../core/utils/time/stringConvertLocaltoUTC';
-import TimeInput from '../../components/ui/TimeInput/TimeInput';
-import { useLang } from '../../core/hooks/useLang';
+import { useContext, useEffect, useState } from 'react';
+import { baseData, DataContext } from '@components/providers/DataProvider';
+import { Button, Divider, IconButton, List, TextInput } from 'react-native-paper';
 
-type SettingsScreenProps = NativeStackScreenProps<RootStackParamList, 'Settings'>;
+type SettingsScreenProps = NavigationScreenProps<"Settings">;
 
 export default function SettingsScreen({ navigation }: SettingsScreenProps) {
 
-    const LANG = useLang()
-
-    const { data, isLoading: isLoadingUseGetSettingsQuery, error } = useGetSettingsQuery();
-    const [setSettingsMutation, { isLoading: isLoadingSetSettingsMutation }] = useSetSettingsMutation()
-
-    const isLoading = isLoadingSetSettingsMutation || isLoadingUseGetSettingsQuery
-
-    const [settings, setSettings] = useState<ISettingsBase>({
-        notif_time: "10:00:00",
-        notif_active: false,
-        lang: "ru"
-    })
+    const { data, setData } = useContext(DataContext);
+    const [devicesForm, setDevicesForm] = useState<IStand[]>([]);
 
     useEffect(() => {
-        if (!data) {
-            return
-        }
-
-        setSettings({ ...data, notif_time: stringConvertUTCtoLocal(data.notif_time) })
+        setDevicesForm(data)
     }, [data])
 
-    const setSetting = (
-        key: keyof ISettingsBase,
-        value: ISettingsBase[keyof ISettingsBase]
-    ) => {
-        setSettings(prev => ({
-            ...prev,
-            [key]: value
-        }));
-    }
-
-    if (isLoading) {
-        return <Loading />
-    }
-
     const handleSave = () => {
-        setSettingsMutation({ ...settings, notif_time: stringConvertLocaltoUTC(settings.notif_time) })
-            .then(() => Alert.alert(LANG.ALERT.OK, LANG.ALERT.SAVE))
-            .catch((ex) => {
-                Alert.alert(LANG.ALERT.ERR, LANG.ALERT.ERR_SAVE)
-                console.log(ex)
-            })
-    }
+        setData(devicesForm);
+        Alert.alert("OK", "Save stands list");
+    };
+
+    const handleChangeDevice = (index: number, updatedDevice: IStand) => {
+        const updatedDevices = [...devicesForm];
+        updatedDevices[index] = updatedDevice;
+        setDevicesForm(updatedDevices);
+    };
+
+    const handleDeleteDevice = (index: number) => {
+        const updatedDevices = [...devicesForm];
+        updatedDevices.splice(index, 1);
+        setDevicesForm(updatedDevices);
+    };
+
+    const handleAddDevice = () => {
+        const newDevice: IStand = {
+            id: (devicesForm.length + 1).toString(),
+            name: 'Стенд' + (devicesForm.length + 1),
+            deviceid: 4
+        };
+
+        setDevicesForm([...devicesForm, newDevice]);
+    };
 
     return (
         <View style={baseStyles.wrapper}>
-            <Header title={LANG.SCREENS.SETTINGS.HEADER} />
+            <Header title={"Настройки"} navigation={navigation} />
             <ScrollView style={baseStyles.scrollView}>
-                {error ? <Error minimal /> :
-                    <>
-                        <View style={baseStyles.container}>
-                            <Headline style={{ marginBottom: 20, marginHorizontal: 10 }}>
-                                {LANG.SCREENS.SETTINGS.HEADER_MAIN}
-                            </Headline>
-                            <Dropdown
-                                label={LANG.SCREENS.SETTINGS.LANGUAGE}
-                                options={langOptions}
-                                value={settings?.lang}
-                                onSelect={(value?: string | undefined) => setSetting("lang", value as ISettingsLang)}
-                                disabled={isLoading}
-                            />
+                <List.Section style={{ gap: 10 }}>
+                    {devicesForm.map((device, index) => (
+                        <View key={device.id + device.deviceid}>
+                            <View style={{ alignItems: 'center' }}>
+                                <View style={{ flexDirection: 'row' }}>
+                                    <TextInput
+                                        label={"UUID"}
+                                        style={{ flex: 1 }}
+                                        value={device.id.toString()}
+                                        onChangeText={(text) =>
+                                            handleChangeDevice(index, { ...device, id: text })
+                                        }
+                                    />
+                                    <IconButton
+                                        icon="delete"
+                                        onPress={() => handleDeleteDevice(index)}
+                                    />
+                                </View>
+                                <View style={{ flexDirection: 'row' }}>
+                                    <TextInput
+                                        label={"Name"}
+
+                                        style={{ flex: 1, marginRight: 10 }}
+                                        value={device.name}
+                                        onChangeText={(text) =>
+                                            handleChangeDevice(index, { ...device, name: text })
+                                        }
+                                    />
+                                    <TextInput
+                                        label={"Device ID"}
+
+                                        style={{ flex: 1 }}
+                                        value={device.deviceid?.toString()}
+                                        onChangeText={(text) =>
+                                            handleChangeDevice(index, { ...device, deviceid: parseInt(text) })
+                                        }
+                                    />
+                                </View>
+                            </View>
+                            {index !== devicesForm.length - 1 && <Divider />}
                         </View>
-                        <View style={baseStyles.container}>
-                            <Headline style={{ marginBottom: 20, marginHorizontal: 10 }}>
-                                {LANG.SCREENS.SETTINGS.HEADER_NOTIFICATIONS}
-                            </Headline>
-                            <SwitchWithLabel
-                                value={settings?.notif_active}
-                                label={LANG.SCREENS.SETTINGS.NOTIFICATIONS_TOGGLE}
-                                onChange={(value: boolean) => setSetting("notif_active", value as boolean)}
-                                disabled={isLoading}
-                            />
-                            <TimeInput
-                                label={LANG.SCREENS.SETTINGS.NOTIFICATIONS_TIME}
-                                value={settings?.notif_time}
-                                onChange={(value?: string | undefined) => setSetting("notif_time", value as string)}
-                                disabled={isLoading || !settings?.notif_active}
-                            />
-                        </View>
-                    </>}
+                    ))}
+                    <Button mode="text" onPress={handleAddDevice}>
+                        Добавить
+                    </Button>
+                </List.Section>
             </ScrollView>
-            <Button mode="contained"
-                style={{ marginTop: 30 }}
-                onPress={handleSave}
-                disabled={isLoading}
-                loading={isLoading}
-            >
-                Сохранить
-            </Button>
-            <Footer navigation={navigation} />
+            <View style={baseStyles.footer}>
+                <Button mode="contained" onPress={handleSave}>
+                    Сохранить
+                </Button>
+
+            </View>
         </View>
     );
 }

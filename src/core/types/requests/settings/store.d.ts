@@ -1,2 +1,0 @@
-interface ISettingsStoreRequest extends ISettingsBase {
-}

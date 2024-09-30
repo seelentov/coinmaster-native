@@ -1,42 +1,56 @@
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { Dispatch, PropsWithChildren, ReactNode, SetStateAction, useState } from "react"
-import { View } from "react-native";
-import { Appbar } from "react-native-paper";
+import { ReactNode, useContext, useState } from 'react';
+import { Text, View } from "react-native";
+import { Appbar, Divider, Menu } from "react-native-paper";
 import { baseStyles } from "../../../styles/base.styles";
+import { INavigation, RootStackParamList } from "@router";
+import { DataContext } from '@components/providers/DataProvider';
 
 interface IHeaderProps {
     title?: string
-    showBack?: boolean
-    search?: {
-        node: ReactNode,
-        searchIsOpen: boolean,
-        setSearchIsOpen: Dispatch<SetStateAction<boolean>>
-    }
-    desc?: ReactNode
+    additional?: ReactNode
+    navigation: INavigation
 }
 
+export default function Header({ navigation, additional, title = "" }: IHeaderProps) {
 
-export default function Header({ search, desc = "", title = "", showBack = true }: IHeaderProps) {
+    const [visible, setVisible] = useState(true);
 
-    const navigation = useNavigation()
+    const { data } = useContext(DataContext);
 
-    const goBack = () => navigation.goBack();
+    const closeMenu = () => setVisible(false);
+    const openMenu = () => setVisible(true);
+
+    const handlePress = (screenName: any, props?: any) => {
+        if (props) {
+            navigation.navigate(screenName, props)
+        }
+        else {
+            navigation.navigate(screenName)
+        }
+
+        setVisible(false)
+    }
 
     return (
         <Appbar.Header style={baseStyles.header}>
-            {((search && !search.searchIsOpen) || (!search)) &&
-                <>
-                    {showBack ?
-                        <Appbar.BackAction onPress={goBack} /> :
-                        <View style={{ marginRight: 30 }}></View>}
-                    <Appbar.Content title={title} />
-                    {search && <Appbar.Action icon="magnify" onPress={() => search.setSearchIsOpen(true)} />}
-                </>}
-            {(search && search.searchIsOpen) &&
-                <View>
-                    {search.node}
-                </View>}
-            {desc}
+            <Appbar.Content title={title} />
+            {additional && additional}
+            <Menu
+                visible={visible}
+                onDismiss={closeMenu}
+                anchor={<Appbar.Action icon="menu" onPress={openMenu} />}
+            >
+                <Menu.Item
+                    onPress={() => handlePress("Settings")}
+                    title="Настроить список"
+                />
+                <Divider />
+                {data.map(d => <Menu.Item
+                    key={d.id + d.deviceid}
+                    onPress={() => handlePress("Stand", d)}
+                    title={d.name}
+                />)}
+            </Menu>
         </Appbar.Header>
     )
 }
