@@ -48,7 +48,7 @@ export default function Header({ navigation, additional, title = "" }: IHeaderPr
                 {data.map(d => <Menu.Item
                     key={d.id + d.deviceid}
                     onPress={() => handlePress("Stand", d)}
-                    title={d.name}
+                    title={`${d.name} ${d.deviceid}`}
                 />)}
             </Menu>
         </Appbar.Header>

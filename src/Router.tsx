@@ -3,12 +3,10 @@ import { StatusBar, View } from 'react-native';
 import theme from './core/config/theme';
 import SettingsScreen from './screens/Settings/SettingsScreen';
 import StandScreen from './screens/Stand/StandScreen';
-import TestScreen from './screens/Test/TestScreen';
 
 export type RootStackParamList = {
     Settings: undefined;
     Stand: IStand;
-    Test: undefined
 };
 
 export type NavigationScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<RootStackParamList, T>;
@@ -27,11 +25,6 @@ export default function Router() {
     return (
         <>
             <Stack.Navigator>
-                <Stack.Screen
-                    name="Test"
-                    component={TestScreen}
-                    options={defaultOptions}
-                />
                 <Stack.Screen
                     name="Settings"
                     component={SettingsScreen}

@@ -37,8 +37,8 @@ export default function SettingsScreen({ navigation }: SettingsScreenProps) {
     const handleAddDevice = () => {
         const newDevice: IStand = {
             id: (devicesForm.length + 1).toString(),
-            name: 'Стенд' + (devicesForm.length + 1),
-            deviceid: 4
+            name: 'Smart passer',
+            deviceid: (devicesForm.length + 1)
         };
 
         setDevicesForm([...devicesForm, newDevice]);

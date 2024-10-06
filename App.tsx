@@ -1,4 +1,4 @@
-import { NativeModules, Platform, SafeAreaView } from 'react-native';
+import { Alert, NativeModules, PermissionsAndroid, Platform, SafeAreaView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import Router from './src/Router';
 import { DataProvider } from './src/components/providers/DataProvider';

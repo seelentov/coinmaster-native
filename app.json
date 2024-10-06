@@ -20,7 +20,12 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.seelentov",
-      "versionCode": 2
+      "versionCode": 2,
+      "permissions": [
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"

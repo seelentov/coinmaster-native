@@ -11,7 +11,7 @@ import {
 import * as ExpoDevice from "expo-device";
 
 import base64 from "react-native-base64";
-
+import { btoa } from "react-native-quick-base64";
 interface BluetoothLowEnergyApi {
     requestPermissions(): Promise<boolean>;
     scanForPeripherals(): void;
@@ -20,9 +20,12 @@ interface BluetoothLowEnergyApi {
     connectedDevice: Device | null;
     allDevices: Device[];
     heartRate: number;
+    writeCharacteristicWithResponseForService: (value: string) => void;
+    scanAndConnect: (name: string) => Promise<void>;
+    scanAndConnectByService: () => Promise<void>
 }
 
-function useBLE(HEART_RATE_UUID: string, HEART_RATE_CHARACTERISTIC: string): BluetoothLowEnergyApi {
+function useBLE(SERVICE_UUID: string, CHARACTERISTIC: string): BluetoothLowEnergyApi {
     const bleManager = useMemo(() => new BleManager(), []);
     const [allDevices, setAllDevices] = useState<Device[]>([]);
     const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
@@ -102,15 +105,42 @@ function useBLE(HEART_RATE_UUID: string, HEART_RATE_CHARACTERISTIC: string): Blu
             }
         });
 
+    const scanAndConnect = async (name: string) =>
+        bleManager.startDeviceScan(null, null, (error, device) => {
+            if (error) {
+                Alert.alert("scanAndConnect__ERR", JSON.stringify(error));
+            }
+            if (device && name && device.name === name) {
+                bleManager.stopDeviceScan();
+                connectToDevice(device)
+            }
+            else {
+                Alert.alert("scanAndConnect__ERR", `Not find ${name}`);
+            }
+        });
+    const scanAndConnectByService = async () =>
+        bleManager.startDeviceScan([SERVICE_UUID], null, (error, device) => {
+            if (error) {
+                Alert.alert("scanAndConnectByService__ERR", JSON.stringify(error));
+            }
+            if (device) {
+                bleManager.stopDeviceScan();
+                connectToDevice(device)
+            }
+            else {
+                Alert.alert("scanAndConnectByService__ERR", `Not find ${SERVICE_UUID}`);
+            }
+        });
+
     const connectToDevice = async (device: Device) => {
         try {
             const deviceConnection = await bleManager.connectToDevice(device.id);
-            setConnectedDevice(deviceConnection);
-            await deviceConnection.discoverAllServicesAndCharacteristics();
+            const check = await deviceConnection.discoverAllServicesAndCharacteristics();
+            setConnectedDevice(check);
             bleManager.stopDeviceScan();
             startStreamingData(deviceConnection);
         } catch (e) {
-            Alert.alert("connectToDevice__ERR", JSON.stringify(e));
+            Alert.alert("FAILED TO CONNECT", JSON.stringify(e));
         }
     };
 
@@ -127,10 +157,8 @@ function useBLE(HEART_RATE_UUID: string, HEART_RATE_CHARACTERISTIC: string): Blu
         characteristic: Characteristic | null
     ) => {
         if (error) {
-            Alert.alert("onHeartRateUpdate__ERR", JSON.stringify(error));
             return -1;
         } else if (!characteristic?.value) {
-            Alert.alert("onHeartRateUpdate__ERR", "No Data was recieved");
             return -1;
         }
 
@@ -153,14 +181,29 @@ function useBLE(HEART_RATE_UUID: string, HEART_RATE_CHARACTERISTIC: string): Blu
     const startStreamingData = async (device: Device) => {
         if (device) {
             device.monitorCharacteristicForService(
-                HEART_RATE_UUID,
-                HEART_RATE_CHARACTERISTIC,
+                SERVICE_UUID,
+                CHARACTERISTIC,
                 onHeartRateUpdate
             );
         } else {
             Alert.alert("startStreamingData__ERR", "No Device Connected");
         }
     };
+
+    const writeCharacteristicWithResponseForService = (value: string) => {
+        if (connectedDevice) {
+            connectedDevice.writeCharacteristicWithResponseForService(
+                SERVICE_UUID,
+                CHARACTERISTIC,
+                btoa(value)
+            ).catch((e) => {
+                Alert.alert("writeCharacteristicWithResponseForService__ERR", JSON.stringify(e));
+            })
+        }
+        else {
+            Alert.alert("writeCharacteristicWithResponseForService__ERR", "No Device Connected");
+        }
+    }
 
     return {
         scanForPeripherals,
@@ -170,6 +213,9 @@ function useBLE(HEART_RATE_UUID: string, HEART_RATE_CHARACTERISTIC: string): Blu
         connectedDevice,
         disconnectFromDevice,
         heartRate,
+        writeCharacteristicWithResponseForService,
+        scanAndConnect,
+        scanAndConnectByService
     };
 }
 
